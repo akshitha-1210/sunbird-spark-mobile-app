@@ -1,0 +1,29 @@
+# Vulnerabilities reviewed and accepted for package-lock.json.
+# Read by osv-scanner (and OpenSSF Scorecard's Vulnerabilities check).
+# Remove an entry as soon as a fixed version can be adopted.
+
+# decompress@4.2.1 — no fixed version exists (package is unmaintained).
+# Pulled in only via @project-sunbird/content-player -> download@8.0.0, which
+# content-player declares but never requires; it is not bundled into the app.
+[[IgnoredVulns]]
+id = "GHSA-h39j-r5qq-r9mm"
+reason = "decompress is an unused transitive dependency of @project-sunbird/content-player; never loaded or bundled. No fixed version exists."
+
+[[IgnoredVulns]]
+id = "GHSA-hrh2-vp3x-79xf"
+reason = "decompress is an unused transitive dependency of @project-sunbird/content-player; never loaded or bundled. No fixed version exists."
+
+[[IgnoredVulns]]
+id = "GHSA-jwp9-9v96-94mx"
+reason = "decompress is an unused transitive dependency of @project-sunbird/content-player; never loaded or bundled. No fixed version exists."
+
+[[IgnoredVulns]]
+id = "GHSA-mp2f-45pm-3cg9"
+reason = "decompress is an unused transitive dependency of @project-sunbird/content-player; never loaded or bundled. No fixed version exists."
+
+# minimatch@10.2.6 — fixed only in 11.x; typescript-eslint (latest 8.72.2)
+# still requires ^10.2.2. Dev-only lint tooling, never shipped; patterns come
+# from the repo's own lint config, not untrusted input.
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+reason = "Dev-only (typescript-eslint lint tooling), not shipped; glob patterns are repo-controlled. Upstream has no 10.x fix yet."
