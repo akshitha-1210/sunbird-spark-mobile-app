@@ -40,6 +40,48 @@ def testPlatformPins = [
     'com.google.guava:guava:33.7.2-jre',
 ]
 
+// Build/test-only tool configurations created by Kotlin, AGP and plugin
+// modules. Scoped by configuration name so nothing shipped in the APK changes.
+def bouncyCastleV = '1.86'
+def toolConfigPins = [
+    // Kotlin Gradle plugin's internal BouncyCastle classpath.
+    kotlinBouncyCastle: [
+        "org.bouncycastle:bcprov-jdk18on:${bouncyCastleV}",
+        "org.bouncycastle:bcpkix-jdk18on:${bouncyCastleV}",
+        "org.bouncycastle:bcutil-jdk18on:${bouncyCastleV}",
+        "org.bouncycastle:bcpg-jdk18on:${bouncyCastleV}",
+    ],
+    // Kotlin's Swift-export tooling (iOS only; never run for Android).
+    swiftExport: [
+        'io.opentelemetry:opentelemetry-api:1.67.0',
+    ],
+    // Annotation processors (e.g. Room compiler in @capacitor-community/sqlite).
+    AnnotationProcessor: [
+        'com.google.guava:guava:33.7.2-jre',
+    ],
+    // Plugin modules' own unit-test classpaths (e.g. capacitor-android).
+    UnitTest: [
+        'org.json:json:20260719',
+    ],
+]
+
+// Minimum versions applied through a component metadata rule in allprojects
+// below. These libraries are only used by build tooling (lint etc.) and are
+// not in the app's runtime classpath.
+def toolingMinPins = [
+    'org.bouncycastle:bcprov-jdk18on'        : bouncyCastleV,
+    'org.bouncycastle:bcpkix-jdk18on'        : bouncyCastleV,
+    'org.bouncycastle:bcutil-jdk18on'        : bouncyCastleV,
+    'org.apache.commons:commons-compress'    : '1.27.1',
+    'org.apache.commons:commons-lang3'       : '3.18.0',
+    'org.apache.httpcomponents:httpclient'   : '4.5.14',
+]
+// Guava is only raised for Android lint tooling (com.android.tools.*), so the
+// -android Guava flavour used by app libraries is never swapped for -jre.
+def lintToolingPins = toolingMinPins + [
+    'com.google.guava:guava'                 : '33.7.2-jre',
+]
+
 // Runtime (shipped in APK). Forced via Firebase Messaging transitives.
 def runtimePins = [
     "com.google.protobuf:protobuf-java:${protobufV}",
@@ -122,6 +164,26 @@ allprojects {
             runtimePins.each { force it }
             if (name.startsWith('_internal-unified-test-platform')) {
                 testPlatformPins.each { force it }
+            }
+            def cfgName = name
+            toolConfigPins.each { key, pins ->
+                if (cfgName.contains(key)) pins.each { force it }
+            }
+        }
+    }
+
+    // AGP resolves Android lint tooling (used by extract*Annotations) through
+    // detached configurations, which configurations.configureEach can't reach.
+    // A component metadata rule applies to every resolution, so raise the
+    // versions those components request. Build-time only.
+    dependencies.components.all { details ->
+        def pins = details.id.group.startsWith('com.android.tools') ? lintToolingPins : toolingMinPins
+        details.allVariants {
+            withDependencies { deps ->
+                deps.each { dep ->
+                    def pinned = pins["${dep.group}:${dep.name}"]
+                    if (pinned) dep.version { require pinned }
+                }
             }
         }
     }

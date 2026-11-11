@@ -1,4 +1,5 @@
-# Vulnerabilities reviewed and accepted for package-lock.json.
+# Vulnerabilities reviewed and accepted for package-lock.json and
+# android/gradle/verification-metadata.xml.
 # Read by osv-scanner (and OpenSSF Scorecard's Vulnerabilities check).
 # Remove an entry as soon as a fixed version can be adopted.
 
@@ -27,3 +28,11 @@ reason = "decompress is an unused transitive dependency of @project-sunbird/cont
 [[IgnoredVulns]]
 id = "GHSA-g3hv-75wg-m249"
 reason = "Dev-only (typescript-eslint lint tooling), not shipped; glob patterns are repo-controlled. Upstream has no 10.x fix yet."
+
+# kotlin-gradle-plugin 1.9.24 / 2.2.20 — declared in the buildscript of
+# @capacitor/barcode-scanner, @capacitor/inappbrowser and @capacitor/filesystem
+# (node_modules). Fixed only in 2.4.20-Beta1 (pre-release). Build-time only;
+# the issue needs a malicious Kotlin build cache, and this build uses none.
+[[IgnoredVulns]]
+id = "GHSA-r937-wjx7-w2jp"
+reason = "Build-time only Kotlin Gradle plugin pinned by Capacitor plugins in node_modules; fix exists only in a 2.4.20 beta. No shared/remote Kotlin build cache is used."

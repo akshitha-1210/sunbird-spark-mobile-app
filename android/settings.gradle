@@ -4,20 +4,26 @@ project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor
 
 apply from: 'capacitor.settings.gradle'
 
-// Security pins for the generated :capacitor-cordova-android-plugins module's
-// own buildscript classpath (it pulls AGP transitives independently of root).
+// Security pins for the buildscript classpath of every subproject: the
+// generated :capacitor-cordova-android-plugins module and the Capacitor
+// plugins in node_modules that declare their own (sometimes older) AGP, e.g.
+// capa-zip -> AGP 8.0.0, capacitor-secure-storage-plugin -> AGP 8.7.2.
+// Those pull vulnerable transitives independently of root. AGP itself is
+// aligned with root, whose classloader already provides the AGP classes.
 // Applied here via gradle.beforeProject so the force is registered BEFORE that
 // subproject's buildscript classpath is resolved. Keep versions in sync with
 // buildClasspathPins in android/build.gradle.
-def nettyV = providers.gradleProperty('nettyVersion').getOrElse('4.1.133.Final')
+def nettyV = providers.gradleProperty('nettyVersion').getOrElse('4.1.139.Final')
 def cordovaBuildscriptPins = [
-    'org.bouncycastle:bcprov-jdk18on:1.84',
-    'org.bouncycastle:bcpkix-jdk18on:1.84',
-    'org.bouncycastle:bcutil-jdk18on:1.84',
+    'com.android.tools.build:gradle:8.13.0',
+    'org.bouncycastle:bcprov-jdk18on:1.86',
+    'org.bouncycastle:bcpkix-jdk18on:1.86',
+    'org.bouncycastle:bcutil-jdk18on:1.86',
     'org.jdom:jdom2:2.0.6.1',
     'org.bitbucket.b_c:jose4j:0.9.6',
     'org.apache.commons:commons-compress:1.27.1',
     'org.apache.commons:commons-lang3:3.18.0',
+    'com.google.guava:guava:33.7.2-jre',
 ] + [
     'netty-common','netty-buffer','netty-transport','netty-transport-native-unix-common',
     'netty-resolver','netty-codec','netty-codec-http','netty-codec-http2',
